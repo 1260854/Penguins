@@ -1,0 +1,59 @@
+---
+title: "Penguin Assignment"
+output: html_document
+---
+# Load functions:
+```{r}
+source("functions/libraries.r")
+source("functions/cleaning.r")
+source("functions/plotting.r")
+```
+# Load the data:
+```{r}
+penguins_raw <- read.csv("data_raw/penguins_raw.csv")
+```
+# Clean the data: fix column names
+```{r}
+penguins_clean <- cleaning(penguins_raw)
+```
+# Save the cleaned data:
+```{r}
+write.csv(penguins_clean, "data_clean/penguins_clean.csv")
+```
+
+# Subset the data to exclude everything except species, flipper length and body mass. Any rows with missing data will also be removed: 
+```{r}
+penguins_flippers_body <- remove_empty_flipper_body(penguins_clean)
+```
+# Linear regression model between body mass and flipper length
+```{r}
+body_mass_flipper_length_lm <- lm(flipper_length_mm ~ body_mass_g, penguins_flippers_body)
+summary(body_mass_flipper_length_lm)
+confint(body_mass_flipper_length_lm)
+```
+# ANOVA for the linear regression:
+```{r}
+anova(body_mass_flipper_length_lm)
+```
+## The P value is less than 0.05, suggesting that there is a significant correlation between body mass and flipper length, and so flipper length can be predicted from body mass. 
+
+# Plot a scatter graph showing the relationship between body mass (g) and flipper length (mm):
+```{r}
+body_mass_flipper_length_scattergraph <- plot_body_mass_flipper_length_figure(penguins_flippers_body)
+```
+# Generate the scatter graph showing the relationship between body mass (g) and flipper length (mm):
+```{r}
+body_mass_flipper_length_scattergraph
+```
+# Save the figure as a png, svg and pdf:
+```{r}
+agg_png("figures/same_size.png", 
+        width = 500, height = 500, units = "px")
+body_mass_flipper_length_scattergraph
+dev.off()
+
+ggsave(file="figures/test.svg", plot=body_mass_flipper_length_scattergraph, width=10, height=8)
+
+ggsave(file="figures/test.pdf", plot=body_mass_flipper_length_scattergraph, width=10, height=8)
+```
+
